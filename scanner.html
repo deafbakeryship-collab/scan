@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍪 餅乾庫存掃描系統</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        #reader { width: 100%; max-width: 500px; margin: auto; background: white; padding: 10px; border-radius: 8px; }
+        .result-card { background: white; margin-top: 20px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .status-msg { color: #2ecc71; font-weight: bold; font-size: 1.2em; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; border-radius: 5px; border: none; background: #3498db; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>🍪 餅乾庫存掃描</h1>
+    
+    <div id="reader"></div>
+
+    <div class="result-card">
+        <h3>掃描結果：<span id="scan-result" style="color:red;">等待掃描...</span></h3>
+        <p id="action-msg">偵測到條碼後，請選擇操作：</p>
+        <button onclick="updateStock(1)">➕ 入庫 (+1)</button>
+        <button onclick="updateStock(-1)" style="background:#e74c3c;">➖ 出庫 (-1)</button>
+    </div>
+
+    <script>
+        let lastResult = "";
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // 避免重複掃描同一個條碼
+            if (decodedText !== lastResult) {
+                lastResult = decodedText;
+                document.getElementById('scan-result').innerText = decodedText;
+                // 手機震動提示 (部分手機支援)
+                if (navigator.vibrate) navigator.vibrate(100);
+            }
+        }
+
+        function updateStock(change) {
+            if (!lastResult) {
+                alert("請先掃描條碼！");
+                return;
+            }
+            // 這裡目前先用彈窗模擬，之後可串接資料庫
+            alert(`產品 ${lastResult} 已成功調整庫存: ${change > 0 ? '+1' : '-1'}`);
+        }
+
+        // 初始化掃描器
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 250, height: 150} }
+        );
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
